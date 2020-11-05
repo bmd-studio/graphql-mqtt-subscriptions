@@ -10,7 +10,7 @@ export interface PubSubMQTTOptions {
   subscribeOptions?: SubscribeOptionsResolver;
   onMQTTSubscribe?: (id: number, granted: ISubscriptionGrant[]) => void;
   triggerTransform?: TriggerTransform;
-  parseMessageWithEncoding?: string;
+  parseMessageWithEncoding?: BufferEncoding;
 }
 
 export class MQTTPubSub implements PubSubEngine {
@@ -23,7 +23,7 @@ export class MQTTPubSub implements PubSubEngine {
   private subscriptionMap: { [subId: number]: [string, Function] };
   private subsRefsMap: { [trigger: string]: Array<number> };
   private currentSubscriptionId: number;
-  private parseMessageWithEncoding: string;
+  private parseMessageWithEncoding: BufferEncoding;
 
   private static matches(pattern: string, topic: string) {
     const patternSegments = pattern.split('/');
@@ -77,13 +77,12 @@ export class MQTTPubSub implements PubSubEngine {
     this.parseMessageWithEncoding = options.parseMessageWithEncoding;
   }
 
-  public publish(trigger: string, payload: any): boolean {
-    this.publishOptionsResolver(trigger, payload).then(publishOptions => {
+  public publish(trigger: string, payload: any): Promise<void> {
+    return this.publishOptionsResolver(trigger, payload).then(publishOptions => {
       const message = Buffer.from(JSON.stringify(payload), this.parseMessageWithEncoding);
 
       this.mqttConnection.publish(trigger, message, publishOptions);
     });
-    return true;
   }
 
   public subscribe(trigger: string, onMessage: Function, options?: Object): Promise<number> {

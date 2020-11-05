@@ -185,6 +185,7 @@ describe('MQTTPubSub', function () {
         pubSub.publish('Posts', 'test');
 
         unSubIds = subIds;
+        done();
       } catch (e) {
         done(e);
       }
@@ -446,6 +447,7 @@ describe('Wildcards in subscription topic', function () {
         pubSub.publish('Posts/CategoryA', 'test');
         pubSub.publish('Posts/CategoryB', 'test');
         unSubIds = subIds;
+        done();
       } catch (e) {
         done(e);
       }
